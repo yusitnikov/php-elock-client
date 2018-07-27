@@ -1,0 +1,20 @@
+{
+    "name": "yusitnikov/php-elock-client",
+    "description": "Simple eLock client on PHP",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Yura Sitnikov",
+            "email": "y.sitnikoff@gmail.com"
+        }
+    ],
+    "require": {
+        "psr/log": "^1.0"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Chameleon\\PhpELockClient\\": "src/"
+        }
+    }
+}
