@@ -30,8 +30,46 @@ composer install yusitnikov/php-elock-client
 
 ## Use eLock client
 
+### Basic usage
+
 ```php
+$key1 = 'unique-resource-key1';
+$key1 = 'unique-resource-key2';
+$lockTimeout = 5;
+
+// Create a client
 $client = new ELockClient('your.elock.server.host.or.ip');
 
-$client-lock
+// Tell to release all locks after the disconnection
+$client->setTimeout(0);
+
+// Lock keys
+$lockedKey1 = $client->lock($key1, $lockTimeout);
+$lockedKey2 = $client->lock($key2, $lockTimeout);
+
+// Unlock key
+$unlockedKey1 = $client->unlock($key1);
+
+// Unlock all keys you own
+$client->unlockAll();
+
+// Disconnect from the server
+$client->quit();
+$client->close();
+```
+
+### Common usage for atomic operations
+
+```php
+// Lock the resource with a timeout that's big enough to wait for other clients to finish their job
+if (!$client->lock($key, $timeout)) {
+    throw new Exception('Failed to lock the resource XXX during YYY seconds');
+}
+
+try {
+    // Do something with the locked resource
+} finally {
+    // Ensure that the resource will be unlocked in the case of unexpected error
+    $client->unlock($key);
+}
 ```
