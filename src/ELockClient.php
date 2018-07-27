@@ -127,6 +127,7 @@ class ELockClient implements LoggerAwareInterface
     {
         $this->_log("Attempting to lock '$key' with timeout of $timeout seconds");
         $normalizedKey = $this->_normalizeKey($key);
+        stream_set_timeout($this->_connection, $timeout + 60);
         $response = $this->sendCommand("lock $normalizedKey $timeout");
         switch ($response->code) {
             case 200:
