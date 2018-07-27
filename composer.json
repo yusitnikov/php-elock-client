@@ -8,6 +8,7 @@
             "email": "y.sitnikoff@gmail.com"
         }
     ],
+    "license": "MIT",
     "require": {
         "psr/log": "^1.0"
     },
