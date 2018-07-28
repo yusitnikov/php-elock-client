@@ -1,5 +1,6 @@
 # PHP eLock Client
 Simple eLock client on PHP.
+Also supports deadlock detection of NodeJS eLock server.
 
 ## What is eLock?
 
@@ -9,14 +10,29 @@ Advantages:
 - fault-tolerant
 - simple to install and to use
 - safe from race conditions - all operations are atomic
-- safe from deadlocks - all locks required by a client are being unlocked automatically when the client disconnects
+- all locks required by a client are being unlocked automatically when the client disconnects
 
 See [source repository](https://github.com/dustin/elock).
 
+## What is NodeJS eLock server?
+
+NodeJS eLock server is an implementation of original eLock protocol on NodeJS with an addition of deadlock detection.
+
+Advantages:
+- all advantages of original eLock protocol
+- when lock attempt causes a recursive lock circle, a deadlock is automatically reported with 423 response code
+
+See [source repository](https://github.com/yusitnikov/node-elock-server).
+
 ## Install eLock server
 
+### Original eLock server
 1. [Install erlang OTP](https://hostpresto.com/community/tutorials/how-to-install-erlang-on-ubuntu-16-04/)
 2. [Install and run eLock server](http://dustin.sallings.org/elock/admin.html)
+
+### NodeJS eLock server
+1. [Install NodeJS/npm](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions)
+2. [Install and run eLock server](https://github.com/yusitnikov/node-elock-server#install)
 
 It would be listening on port 11400.
 

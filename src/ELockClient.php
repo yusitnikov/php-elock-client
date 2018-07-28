@@ -2,6 +2,7 @@
 
 namespace Chameleon\PhpELockClient;
 
+use Chameleon\PhpELockClient\Exception\DeadlockException;
 use Chameleon\PhpELockClient\Exception\ELockException;
 use Chameleon\PhpELockClient\Exception\UnexpectedResponseException;
 use Psr\Log\LoggerAwareInterface;
@@ -122,6 +123,7 @@ class ELockClient implements LoggerAwareInterface
      * @param int $timeout Timeout in seconds.
      * @return bool
      * @throws UnexpectedResponseException
+     * @throws DeadlockException
      */
     public function lock($key, $timeout = 0)
     {
@@ -134,6 +136,8 @@ class ELockClient implements LoggerAwareInterface
                 return true;
             case 409:
                 return false;
+            case 423:
+                throw new DeadlockException($response->message);
             default:
                 throw new UnexpectedResponseException("lock '$key'", $response);
         }
