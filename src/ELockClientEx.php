@@ -2,6 +2,7 @@
 
 namespace Chameleon\PhpELockClient;
 
+use Chameleon\PhpELockClient\Exception\DeadlockException;
 use Chameleon\PhpELockClient\Exception\UnexpectedResponseException;
 
 /**
@@ -28,22 +29,13 @@ class ELockClientEx extends ELockClient
      * @param int $timeout Timeout in seconds.
      * @return bool
      * @throws UnexpectedResponseException
+     * @throws DeadlockException
      */
     public function lockValue($key, $value, $timeout = 0)
     {
-        $this->_log("Attempting to lock '$key' to '$value' with timeout of $timeout seconds");
         $normalizedKey = $this->_normalizeKey($key);
         $normalizedValue = $this->_normalizeKey($value);
-        $this->_setConnectionTimeout($timeout + 60);
-        $response = $this->sendCommand("lock_value $normalizedKey $normalizedValue $timeout");
-        switch ($response->code) {
-            case 200:
-                return true;
-            case 409:
-                return false;
-            default:
-                throw new UnexpectedResponseException("lock_value '$key' '$value'", $response);
-        }
+        return $this->_executeLockCommand("lock_value $normalizedKey $normalizedValue $timeout", "lock '$key' to '$value'", $timeout);
     }
 
     /**

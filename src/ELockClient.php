@@ -124,6 +124,33 @@ class ELockClient implements LoggerAwareInterface
     }
 
     /**
+     * Executes a lock command and parses results.
+     *
+     * @param string $command
+     * @param string $commandDescription
+     * @param int $timeout Timeout in seconds.
+     * @return bool
+     * @throws UnexpectedResponseException
+     * @throws DeadlockException
+     */
+    protected function _executeLockCommand($command, $commandDescription, $timeout)
+    {
+        $this->_log("Attempting to $commandDescription with timeout of $timeout seconds");
+        $this->_setConnectionTimeout($timeout + 60);
+        $response = $this->sendCommand($command);
+        switch ($response->code) {
+            case 200:
+                return true;
+            case 409:
+                return false;
+            case 423:
+                throw new DeadlockException($response->message);
+            default:
+                throw new UnexpectedResponseException($commandDescription, $response);
+        }
+    }
+
+    /**
      * Locks the key with an exclusive lock.
      *
      * Only one client can lock the key at the same time.
@@ -140,20 +167,8 @@ class ELockClient implements LoggerAwareInterface
      */
     public function lock($key, $timeout = 0)
     {
-        $this->_log("Attempting to lock '$key' with timeout of $timeout seconds");
         $normalizedKey = $this->_normalizeKey($key);
-        $this->_setConnectionTimeout($timeout + 60);
-        $response = $this->sendCommand("lock $normalizedKey $timeout");
-        switch ($response->code) {
-            case 200:
-                return true;
-            case 409:
-                return false;
-            case 423:
-                throw new DeadlockException($response->message);
-            default:
-                throw new UnexpectedResponseException("lock '$key'", $response);
-        }
+        return $this->_executeLockCommand("lock $normalizedKey $timeout", "lock '$key'", $timeout);
     }
 
     /**
