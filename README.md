@@ -1,6 +1,6 @@
 # PHP eLock Client
 Simple eLock client on PHP.
-Also supports deadlock detection of NodeJS eLock server.
+Also supports features of NodeJS eLock server.
 
 ## What is eLock?
 
@@ -21,6 +21,8 @@ NodeJS eLock server is an implementation of original eLock protocol on NodeJS wi
 Advantages:
 - all advantages of original eLock protocol
 - when lock attempt causes a recursive lock circle, a deadlock is automatically reported with 423 response code
+- supports value locks
+- has "debug" command
 
 See [source repository](https://github.com/yusitnikov/node-elock-server).
 
@@ -53,8 +55,10 @@ $key1 = 'unique-resource-key1';
 $key1 = 'unique-resource-key2';
 $lockTimeout = 5;
 
-// Create a client
+// Create a client of an original eLock server
 $client = new ELockClient('your.elock.server.host.or.ip');
+// or create a client of a NodeJS eLock server
+$client = new ELockClientEx('your.elock.server.host.or.ip');
 
 // Tell to release all locks after the disconnection
 $client->setTimeout(0);

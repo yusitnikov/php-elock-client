@@ -51,7 +51,7 @@ class ELockClient implements LoggerAwareInterface
      *
      * @param string $message
      */
-    private function _log($message)
+    protected function _log($message)
     {
         if ($this->logger) {
             $this->logger->debug("[elock] $message");
@@ -108,13 +108,26 @@ class ELockClient implements LoggerAwareInterface
      * @param string $key
      * @return string
      */
-    private function _normalizeKey($key)
+    protected function _normalizeKey($key)
     {
         return sha1($key);
     }
 
     /**
-     * Locks the key.
+     * Sets timeout for the connection.
+     *
+     * @param int $timeout Timeout in seconds
+     */
+    protected function _setConnectionTimeout($timeout)
+    {
+        stream_set_timeout($this->_connection, $timeout);
+    }
+
+    /**
+     * Locks the key with an exclusive lock.
+     *
+     * Only one client can lock the key at the same time.
+     *
      * If the lock is acquired by other client, waits $timeout seconds for it to be released.
      * Returns true if the key was locked successfully or false if the lock is acquired by other client.
      * Any acquired lock will be held until it's specifically unlocked, unlocked with unlockAll, or the client disconnects.
@@ -129,7 +142,7 @@ class ELockClient implements LoggerAwareInterface
     {
         $this->_log("Attempting to lock '$key' with timeout of $timeout seconds");
         $normalizedKey = $this->_normalizeKey($key);
-        stream_set_timeout($this->_connection, $timeout + 60);
+        $this->_setConnectionTimeout($timeout + 60);
         $response = $this->sendCommand("lock $normalizedKey $timeout");
         switch ($response->code) {
             case 200:
